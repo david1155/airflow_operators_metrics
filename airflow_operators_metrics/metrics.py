@@ -180,8 +180,8 @@ def get_airflow_data(
     airflow_args = cmdline[3]
 
     # normalize values
-    for v in airflow_args:
-        v = str(v).replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'","")
+    for i, v in airflow_args:
+        airflow_args[i] = str(v).replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'","")
 
     print(">>>>airflow_args>>>> " + str(airflow_args))
     dag = airflow_args[3]
