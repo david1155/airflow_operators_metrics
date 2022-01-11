@@ -35,7 +35,7 @@ class ProcessMetrics(t.NamedTuple):
 
 class MetricsContainer:
     def __init__(self, prefix=None,
-                 global_labels: t.Optional[t.Dict[str, str]]=None):
+                 global_labels: t.Optional[t.Dict[str, str]] = None):
         self._prefix = prefix
         self._global_labels = global_labels
         labels = ('name', 'dag', 'operator', 'exec_date')
@@ -170,25 +170,27 @@ def _get_process_name(metrics: ProcessMetrics):
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-    cmdline = process.cmdline()
-    if not cmdline or not cmdline[0].startswith('/usr/bin/python3'):
-        return None
+    children = process.children(recursive=True)
+    for child in children:
+        cmdline = child.cmdline()
+        if not cmdline or not cmdline[0].startswith('/usr/bin/python3'):
+            return None
 
-    for cmd_arg in cmdline:
-        if 'airflow run' not in cmd_arg:
-            continue
+        for cmd_arg in cmdline:
+            if 'airflow run' not in cmd_arg:
+                continue
 
-        airflow_args = cmd_arg.split()
-        dag = airflow_args[3]
-        operator = airflow_args[4]
-        exec_date = airflow_args[5][5:25]
-        is_local = any([i == '--local' for i in airflow_args])
-        is_raw = any([i == '--raw' for i in airflow_args])
+            airflow_args = cmd_arg.split()
+            dag = airflow_args[3]
+            operator = airflow_args[4]
+            exec_date = airflow_args[5][5:25]
+            is_local = any([i == '--local' for i in airflow_args])
+            is_raw = any([i == '--raw' for i in airflow_args])
 
-        return {
-            'dag': dag,
-            'operator': operator,
-            'exec_date': exec_date,
-            'is_local': is_local,
-            'is_raw': is_raw,
-        }
+            return {
+                'dag': dag,
+                'operator': operator,
+                'exec_date': exec_date,
+                'is_local': is_local,
+                'is_raw': is_raw,
+            }
