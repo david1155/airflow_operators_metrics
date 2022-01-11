@@ -1,10 +1,10 @@
-import logging
+# import logging
 import typing as t
 
 import psutil
 from prometheus_client import Gauge, Summary
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 COLLECT_TIME = Summary('airflow_collecting_stats_seconds',
                        'Time spent processing collecting stats')
@@ -84,7 +84,7 @@ class MetricsContainer:
         for process_metrics in _get_processes_metrics():
             self._handle_process_metrics(process_metrics)
             handled += 1
-        logger.info(f'Gathered metrics from {handled} processes')
+        # logger.info(f'Gathered metrics from {handled} processes')
 
     def _handle_process_metrics(self, metrics: ProcessMetrics):
         name = _get_process_name(metrics)
