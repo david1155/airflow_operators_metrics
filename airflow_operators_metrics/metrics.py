@@ -174,10 +174,10 @@ def get_airflow_data(
     children = process.children(recursive=True)
     for child in children:
         cmdline = child.cmdline()
-        if not cmdline or not cmdline[2].startswith('runner'):
+        if not cmdline or not cmdline[0].startswith('airflow'):
             return None
         for cmd_arg in cmdline:
-            if 'airflow' not in cmd_arg:
+            if 'runner:' not in cmd_arg:
                 continue
 
             print(">>>> " + str(cmdline))
