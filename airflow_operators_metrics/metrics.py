@@ -174,7 +174,7 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'impala_perfom_log',", "'sql2_task',", "'2022-01-11T07:00:00+00:00',", "'--local',", "'--pool',", "'default_pool',", "'--subdir',", "'/usr/local/airflow/dags-bucket/data-factory/impala_perfom_log.py']"]
-    print(">> " + str(cmdline))
+    # print(">> " + str(cmdline))
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
