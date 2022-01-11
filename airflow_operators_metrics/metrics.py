@@ -171,13 +171,18 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
-    cmdline = cmdline.split()
-    print(">>>>CMDLINE>>>> " + str(cmdline))
+
+    # print(">>>>CMDLINE>>>> " + str(cmdline))
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
     # print(">>>>amd_arg>>>> " + str(cmdline))
     airflow_args = cmdline[3]
+
+    # normalize values
+    for v in airflow_args:
+        v = str(v).replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'","")
+
     print(">>>>airflow_args>>>> " + str(airflow_args))
     dag = airflow_args[3]
     print(">>>DAG>>> "+dag)
