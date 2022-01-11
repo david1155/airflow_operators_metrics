@@ -177,11 +177,11 @@ def get_airflow_data(
         return None
 
     # print(">>>>amd_arg>>>> " + str(cmdline))
-    airflow_args = cmdline[3]
+    airflow_args = []
 
     # normalize values
-    for i, v in enumerate(airflow_args):
-        airflow_args[i] = str(v).replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'","")
+    for v in cmdline[3]:
+        airflow_args.append(v.replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'",""))
 
     print(">>>>airflow_args>>>> " + str(airflow_args))
     dag = airflow_args[3]
