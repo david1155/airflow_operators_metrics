@@ -175,10 +175,10 @@ def get_airflow_data(
         return None
 
     print(">>>>airflow_args>>>> " + str(cmdline))
-    dag = airflow_args[3]
+    dag = cmdline[3]
     print(">>>DAG>>> "+dag)
-    operator = airflow_args[4]
-    exec_date = airflow_args[5][5:25]
+    operator = cmdline[4]
+    exec_date = cmdline[5][5:25]
     # is_local = any([i == '--local' for i in airflow_args])
     # is_raw = any([i == '--raw' for i in airflow_args])
 
