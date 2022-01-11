@@ -168,48 +168,14 @@ def _get_process_name(metrics: ProcessMetrics):
         name_parts.append('is_raw')
     return '_'.join(name_parts)
 
-def cmdline_split(s):
-    """shlex.split() for command-line splitting.
-    For use with subprocess, for argv injection etc. Using fast REGEX.
-    """
-
-    RE_CMD_LEX = r'''"((?:\\["\\]|[^"])*)"|'([^']*)'|(\\.)|(&&?|\|\|?|\d?\>|[<])|([^\s'"\\&|<>]+)|(\s+)|(.)'''
-
-    args = []
-    accu = None   # collects pieces of one arg
-    for qs, qss, esc, pipe, word, white, fail in re.findall(RE_CMD_LEX, s):
-        if word:
-            pass   # most frequent
-        elif esc:
-            word = esc[1]
-        elif white or pipe:
-            if accu is not None:
-                args.append(accu)
-            if pipe:
-                args.append(pipe)
-            accu = None
-            continue
-        elif fail:
-            raise ValueError("invalid or incomplete shell string")
-        elif qs:
-            word = qs.replace('\\"', '"').replace('\\\\', '\\')
-        else:
-            word = qss   # may be even empty; must be last
-
-        accu = (accu or '') + word
-
-    if accu is not None:
-        args.append(accu)
-
-    return args
-
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-    cmdline = cmdline_split(str(process.cmdline()))
-    print(">>>CMDLINE>>>> "+str(cmdline))
-    # cmdline = process.cmdline()
+    cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
-    # print(">> " + str(cmdline))
+    x = 0
+    for i in cmdline:
+        print(x+"> "+i)
+        x += 1
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
