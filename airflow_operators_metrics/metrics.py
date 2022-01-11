@@ -125,6 +125,7 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             airflow_data = get_airflow_data(process)
             if not airflow_data:
                 continue
+            print("----- "+airflow_data)
             mem = process.memory_full_info()
             cpu_times = process.cpu_times()
             cpu_percent = process.cpu_percent()
@@ -135,8 +136,8 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             dag=airflow_data['dag'],
             operator=airflow_data['operator'],
             exec_date=airflow_data['exec_date'],
-            is_local=airflow_data['is_local'],
-            is_raw=airflow_data['is_raw'],
+            # is_local=airflow_data['is_local'],
+            # is_raw=airflow_data['is_raw'],
 
             mem_rss=mem.rss,
             mem_vms=mem.vms,
@@ -172,26 +173,27 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     children = process.children(recursive=True)
     for child in children:
-        print(child.cmdline())
         cmdline = child.cmdline()
-        if not cmdline or not cmdline[0].startswith('/usr/bin/python'):
+        if not cmdline or not cmdline[2].startswith('runner'):
             return None
-        print(">>>> "+str(cmdline))
         for cmd_arg in cmdline:
-            if 'airflow run' not in cmd_arg:
+            if 'airflow' not in cmd_arg:
                 continue
+
+            print(">>>> " + str(cmdline))
 
             airflow_args = cmd_arg.split()
             dag = airflow_args[3]
             operator = airflow_args[4]
             exec_date = airflow_args[5][5:25]
-            is_local = any([i == '--local' for i in airflow_args])
-            is_raw = any([i == '--raw' for i in airflow_args])
+            pid = airflow_args[6]
+            # is_local = any([i == '--local' for i in airflow_args])
+            # is_raw = any([i == '--raw' for i in airflow_args])
 
             return {
                 'dag': dag,
                 'operator': operator,
                 'exec_date': exec_date,
-                'is_local': is_local,
-                'is_raw': is_raw,
+                # 'is_local': is_local,
+                # 'is_raw': is_raw,
             }
