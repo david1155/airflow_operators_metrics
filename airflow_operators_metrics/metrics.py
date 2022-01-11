@@ -171,25 +171,24 @@ def _get_process_name(metrics: ProcessMetrics):
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
+    # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'impala_perfom_log',", "'sql2_task',", "'2022-01-11T07:00:00+00:00',", "'--local',", "'--pool',", "'default_pool',", "'--subdir',", "'/usr/local/airflow/dags-bucket/data-factory/impala_perfom_log.py']"]
     print(">> " + str(cmdline))
-    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor':
+    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
-    for cmd_arg in cmdline:
-        #     if 'airflow' and 'run' not in cmd_arg:
-        #         continue
-        print(">>>>amd_arg>>>> " + str(airflow_args))
-        airflow_args = cmd_arg[3].split()
-        print(">>>>airflow_args>>>> " + str(airflow_args))
-        dag = airflow_args[3]
-        operator = airflow_args[4]
-        exec_date = airflow_args[5][5:25]
-        is_local = any([i == '--local' for i in airflow_args])
-        is_raw = any([i == '--raw' for i in airflow_args])
 
-        return {
-            'dag': dag,
-            'operator': operator,
-            'exec_date': exec_date,
-            'is_local': is_local,
-            'is_raw': is_raw,
-        }
+    print(">>>>amd_arg>>>> " + str(cmdline))
+    airflow_args = cmdline[3]
+    print(">>>>airflow_args>>>> " + str(airflow_args))
+    dag = airflow_args[3]
+    operator = airflow_args[4]
+    exec_date = airflow_args[5][5:25]
+    is_local = any([i == '--local' for i in airflow_args])
+    is_raw = any([i == '--raw' for i in airflow_args])
+
+    return {
+        'dag': dag,
+        'operator': operator,
+        'exec_date': exec_date,
+        'is_local': is_local,
+        'is_raw': is_raw,
+    }
