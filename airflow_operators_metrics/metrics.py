@@ -125,7 +125,6 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             airflow_data = get_airflow_data(process)
             if not airflow_data:
                 continue
-            print("----- "+airflow_data)
             mem = process.memory_full_info()
             cpu_times = process.cpu_times()
             cpu_percent = process.cpu_percent()
@@ -136,8 +135,8 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             dag=airflow_data['dag'],
             operator=airflow_data['operator'],
             exec_date=airflow_data['exec_date'],
-            # is_local=airflow_data['is_local'],
-            # is_raw=airflow_data['is_raw'],
+            is_local=airflow_data['is_local'],
+            is_raw=airflow_data['is_raw'],
 
             mem_rss=mem.rss,
             mem_vms=mem.vms,
@@ -172,25 +171,25 @@ def _get_process_name(metrics: ProcessMetrics):
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
         cmdline = process.cmdline()
-        print(">>>> " + str(cmdline))
+        print(">> " + str(cmdline))
         if not cmdline or not cmdline[0].startswith('airflow'):
             return None
         for cmd_arg in cmdline:
-            if 'runner:' not in cmd_arg:
+            if 'airflow' and 'run' not in cmd_arg:
                 continue
 
             airflow_args = cmd_arg.split()
+            print(">>>>airflow_args>>>> " + str(airflow_args))
             dag = airflow_args[3]
             operator = airflow_args[4]
             exec_date = airflow_args[5][5:25]
-            pid = airflow_args[6]
-            # is_local = any([i == '--local' for i in airflow_args])
-            # is_raw = any([i == '--raw' for i in airflow_args])
+            is_local = any([i == '--local' for i in airflow_args])
+            is_raw = any([i == '--raw' for i in airflow_args])
 
             return {
                 'dag': dag,
                 'operator': operator,
                 'exec_date': exec_date,
-                # 'is_local': is_local,
-                # 'is_raw': is_raw,
+                'is_local': is_local,
+                'is_raw': is_raw,
             }
