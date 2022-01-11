@@ -171,16 +171,13 @@ def _get_process_name(metrics: ProcessMetrics):
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-    children = process.children(recursive=True)
-    for child in children:
-        cmdline = child.cmdline()
+        cmdline = process.cmdline()
+        print(">>>> " + str(cmdline))
         if not cmdline or not cmdline[0].startswith('airflow'):
             return None
         for cmd_arg in cmdline:
             if 'runner:' not in cmd_arg:
                 continue
-
-            print(">>>> " + str(cmdline))
 
             airflow_args = cmd_arg.split()
             dag = airflow_args[3]
