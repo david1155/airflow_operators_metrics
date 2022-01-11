@@ -33,6 +33,7 @@ if __name__ == '__main__':
         while True:
             metrics.collect()
             time.sleep(sleep_seconds)
-            print(psutil.process_iter())
+            for process in psutil.process_iter():
+                print(process)
     except KeyboardInterrupt:
         pass
