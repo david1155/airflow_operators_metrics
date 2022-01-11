@@ -171,14 +171,12 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
     # remove extra literals from array
-    for k in cmdline:
-        if k in "[]',\"":
-            cmdline.replace(k, '')
+    cmdline = [cmdline.replace('[]\'\"', '<br />') for w in words]
+
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
     x = 0
-    for i in cmdline:
-        print(str(x)+"> "+str(i))
-        x += 1
+    cmdline = cmdline.split()
+    print(">>>>CMDLINE>>>> " + str(cmdline))
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
