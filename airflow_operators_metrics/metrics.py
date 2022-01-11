@@ -14,8 +14,8 @@ class ProcessMetrics(t.NamedTuple):
     dag: str
     operator: str
     exec_date: str
-    is_local: bool
-    is_raw: bool
+    # is_local: bool
+    # is_raw: bool
 
     mem_rss: int
     mem_vms: int
@@ -135,8 +135,8 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             dag=airflow_data['dag'],
             operator=airflow_data['operator'],
             exec_date=airflow_data['exec_date'],
-            is_local=airflow_data['is_local'],
-            is_raw=airflow_data['is_raw'],
+            # is_local=airflow_data['is_local'],
+            # is_raw=airflow_data['is_raw'],
 
             mem_rss=mem.rss,
             mem_vms=mem.vms,
@@ -161,40 +161,31 @@ def _get_process_name(metrics: ProcessMetrics):
     else:
         name_parts = [operator]
     name_parts.append(metrics.exec_date)
-    if metrics.is_local:
-        name_parts.append('local')
-    if metrics.is_raw:
-        name_parts.append('is_raw')
+    # if metrics.is_local:
+    #     name_parts.append('local')
+    # if metrics.is_raw:
+    #     name_parts.append('is_raw')
     return '_'.join(name_parts)
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
-    # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
-
     # print(">>>>CMDLINE>>>> " + str(cmdline))
-    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
+    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'runner:':
         return None
 
-    # print(">>>>amd_arg>>>> " + str(cmdline))
-    airflow_args = []
-
-    # normalize values
-    for v in cmdline[3]:
-        airflow_args.append(v.replace("[","").replace("]","").replace(",","").replace("\"","").replace("\'",""))
-
-    print(">>>>airflow_args>>>> " + str(airflow_args))
+    print(">>>>airflow_args>>>> " + str(cmdline))
     dag = airflow_args[3]
     print(">>>DAG>>> "+dag)
     operator = airflow_args[4]
     exec_date = airflow_args[5][5:25]
-    is_local = any([i == '--local' for i in airflow_args])
-    is_raw = any([i == '--raw' for i in airflow_args])
+    # is_local = any([i == '--local' for i in airflow_args])
+    # is_raw = any([i == '--raw' for i in airflow_args])
 
     return {
         'dag': dag,
         'operator': operator,
         'exec_date': exec_date,
-        'is_local': is_local,
-        'is_raw': is_raw,
+        # 'is_local': is_local,
+        # 'is_raw': is_raw,
     }
