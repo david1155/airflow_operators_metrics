@@ -2,6 +2,7 @@ import logging
 import typing as t
 
 import psutil
+import re
 from prometheus_client import Gauge, Summary
 
 logger = logging.getLogger(__name__)
