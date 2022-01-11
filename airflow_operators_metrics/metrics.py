@@ -170,26 +170,26 @@ def _get_process_name(metrics: ProcessMetrics):
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-        cmdline = process.cmdline()
-        print(">> " + str(cmdline))
-        if not cmdline or not cmdline[0].startswith('airflow'):
-            return None
-        for cmd_arg in cmdline:
-            if 'airflow' and 'run' not in cmd_arg:
-                continue
+    cmdline = process.cmdline()
+    print(">> " + str(cmdline))
+    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor':
+        return None
+    for cmd_arg in cmdline:
+        #     if 'airflow' and 'run' not in cmd_arg:
+        #         continue
 
-            airflow_args = cmd_arg.split()
-            print(">>>>airflow_args>>>> " + str(airflow_args))
-            dag = airflow_args[3]
-            operator = airflow_args[4]
-            exec_date = airflow_args[5][5:25]
-            is_local = any([i == '--local' for i in airflow_args])
-            is_raw = any([i == '--raw' for i in airflow_args])
+        airflow_args = cmd_arg.split()
+        print(">>>>airflow_args>>>> " + str(airflow_args))
+        dag = airflow_args[3]
+        operator = airflow_args[4]
+        exec_date = airflow_args[5][5:25]
+        is_local = any([i == '--local' for i in airflow_args])
+        is_raw = any([i == '--raw' for i in airflow_args])
 
-            return {
-                'dag': dag,
-                'operator': operator,
-                'exec_date': exec_date,
-                'is_local': is_local,
-                'is_raw': is_raw,
-            }
+        return {
+            'dag': dag,
+            'operator': operator,
+            'exec_date': exec_date,
+            'is_local': is_local,
+            'is_raw': is_raw,
+        }
