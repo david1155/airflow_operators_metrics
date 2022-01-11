@@ -174,9 +174,9 @@ def get_airflow_data(
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'runner:':
         return None
 
-    print(">>>>airflow_args>>>> " + str(cmdline))
+    # print(">>>>airflow_args>>>> " + str(cmdline))
     dag = cmdline[3]
-    print(">>>DAG>>> "+dag)
+    # print(">>>DAG>>> "+dag)
     operator = cmdline[4]
     exec_date = cmdline[5][5:25]
     # is_local = any([i == '--local' for i in airflow_args])
