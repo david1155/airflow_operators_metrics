@@ -126,10 +126,8 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             if not airflow_data:
                 continue
             mem = process.memory_full_info()
-            print("MEMORY "+str(mem))
             cpu_times = process.cpu_times()
             cpu_percent = process.cpu_percent()
-            print("CPU% "+str(cpu_percent))
         except psutil.NoSuchProcess:
             continue
 
@@ -173,15 +171,16 @@ def _get_process_name(metrics: ProcessMetrics):
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
-    # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'impala_perfom_log',", "'sql2_task',", "'2022-01-11T07:00:00+00:00',", "'--local',", "'--pool',", "'default_pool',", "'--subdir',", "'/usr/local/airflow/dags-bucket/data-factory/impala_perfom_log.py']"]
+    # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
     # print(">> " + str(cmdline))
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
     # print(">>>>amd_arg>>>> " + str(cmdline))
     airflow_args = cmdline[3]
-    # print(">>>>airflow_args>>>> " + str(airflow_args))
+    print(">>>>airflow_args>>>> " + str(airflow_args))
     dag = airflow_args[3]
+    print(">>>DAG>>> "+dag)
     operator = airflow_args[4]
     exec_date = airflow_args[5][5:25]
     is_local = any([i == '--local' for i in airflow_args])
