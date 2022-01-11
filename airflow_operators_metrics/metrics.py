@@ -2,7 +2,6 @@ import logging
 import typing as t
 
 import psutil
-import lib_shell
 from prometheus_client import Gauge, Summary
 
 logger = logging.getLogger(__name__)
@@ -168,10 +167,44 @@ def _get_process_name(metrics: ProcessMetrics):
         name_parts.append('is_raw')
     return '_'.join(name_parts)
 
+def cmdline_split(s):
+    """shlex.split() for command-line splitting.
+    For use with subprocess, for argv injection etc. Using fast REGEX.
+    """
+
+    RE_CMD_LEX = r'''"((?:\\["\\]|[^"])*)"|'([^']*)'|(\\.)|(&&?|\|\|?|\d?\>|[<])|([^\s'"\\&|<>]+)|(\s+)|(.)'''
+
+    args = []
+    accu = None   # collects pieces of one arg
+    for qs, qss, esc, pipe, word, white, fail in re.findall(RE_CMD_LEX, s):
+        if word:
+            pass   # most frequent
+        elif esc:
+            word = esc[1]
+        elif white or pipe:
+            if accu is not None:
+                args.append(accu)
+            if pipe:
+                args.append(pipe)
+            accu = None
+            continue
+        elif fail:
+            raise ValueError("invalid or incomplete shell string")
+        elif qs:
+            word = qs.replace('\\"', '"').replace('\\\\', '\\')
+        else:
+            word = qss   # may be even empty; must be last
+
+        accu = (accu or '') + word
+
+    if accu is not None:
+        args.append(accu)
+
+    return args
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-    cmdline = lib_shell.get_l_commandline_from_psutil_process(process)
+    cmdline = cmdline_split(process.cmdline())
     print(">>>CMDLINE>>>> "+cmdline)
     # cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
