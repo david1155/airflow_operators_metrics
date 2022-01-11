@@ -174,7 +174,7 @@ def get_airflow_data(
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
     x = 0
     for i in cmdline:
-        print(x+"> "+i)
+        print(str(x)+"> "+str(i))
         x += 1
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
