@@ -177,8 +177,8 @@ def get_airflow_data(
     for cmd_arg in cmdline:
         #     if 'airflow' and 'run' not in cmd_arg:
         #         continue
-
-        airflow_args = cmd_arg.split()
+        print(">>>>amd_arg>>>> " + str(airflow_args))
+        airflow_args = cmd_arg[3].split()
         print(">>>>airflow_args>>>> " + str(airflow_args))
         dag = airflow_args[3]
         operator = airflow_args[4]
