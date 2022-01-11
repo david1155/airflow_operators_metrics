@@ -126,8 +126,10 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
             if not airflow_data:
                 continue
             mem = process.memory_full_info()
+            print("MEMORY "+mem)
             cpu_times = process.cpu_times()
             cpu_percent = process.cpu_percent()
+            print("CPU% "+cpu_percent)
         except psutil.NoSuchProcess:
             continue
 
@@ -176,9 +178,9 @@ def get_airflow_data(
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
         return None
 
-    print(">>>>amd_arg>>>> " + str(cmdline))
+    # print(">>>>amd_arg>>>> " + str(cmdline))
     airflow_args = cmdline[3]
-    print(">>>>airflow_args>>>> " + str(airflow_args))
+    # print(">>>>airflow_args>>>> " + str(airflow_args))
     dag = airflow_args[3]
     operator = airflow_args[4]
     exec_date = airflow_args[5][5:25]
