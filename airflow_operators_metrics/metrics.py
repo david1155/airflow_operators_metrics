@@ -2,6 +2,7 @@ import logging
 import typing as t
 
 import psutil
+import lib_shell
 from prometheus_client import Gauge, Summary
 
 logger = logging.getLogger(__name__)
@@ -170,7 +171,9 @@ def _get_process_name(metrics: ProcessMetrics):
 
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
-    cmdline = process.cmdline()
+    cmdline = lib_shell.get_l_commandline_from_psutil_process(process)
+    print(">>>CMDLINE>>>> "+cmdline)
+    # cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
     # print(">> " + str(cmdline))
     if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'supervisor:' or cmdline[3][2] == 'run':
