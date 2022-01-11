@@ -206,7 +206,7 @@ def cmdline_split(s):
 def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = cmdline_split(str(process.cmdline()))
-    print(">>>CMDLINE>>>> "+cmdline)
+    print(">>>CMDLINE>>>> "+str(cmdline))
     # cmdline = process.cmdline()
     # ['airflow', 'task', 'supervisor:', "['airflow',", "'tasks',", "'run',", "'dmp_segments_from_dooh',", "'prepare_segments_trainset',", "'2022-01-11T09:26:37.588946+00:00',", "'--local',", "'--pool',", "'hadoop',", "'--subdir',", "'/usr/local/airflow/dags-bucket/dmp-dags/dmp_dooh_segments.py']"]
     # print(">> " + str(cmdline))
