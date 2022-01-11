@@ -172,12 +172,12 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     children = process.children(recursive=True)
     for child in children:
+        print(child.cmdline())
         cmdline = child.cmdline()
-        if not cmdline or not cmdline[0].startswith('/usr/bin/python3'):
+        if not cmdline or not cmdline[0].startswith('/usr/bin/python'):
             return None
-
+        print(">>>> "+str(cmdline))
         for cmd_arg in cmdline:
-            print(child.cmdline())
             if 'airflow run' not in cmd_arg:
                 continue
 
