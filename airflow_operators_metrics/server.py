@@ -6,7 +6,7 @@ import socket
 import psutil
 import prometheus_client as prom
 
-from airflow_operators_metrics.metrics import MetricsContainer
+from metrics import MetricsContainer
 
 
 if __name__ == '__main__':
