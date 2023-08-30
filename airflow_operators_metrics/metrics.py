@@ -79,11 +79,9 @@ class MetricsContainer:
 
     @COLLECT_TIME.time()
     def collect(self):
-        handled = 0
         self._reset()
         for process_metrics in _get_processes_metrics():
             self._handle_process_metrics(process_metrics)
-            handled += 1
         # logger.info(f'Gathered metrics from {handled} processes')
 
     def _handle_process_metrics(self, metrics: ProcessMetrics):
@@ -91,7 +89,7 @@ class MetricsContainer:
         labels = {'name': name, 'dag': metrics.dag,
                   'operator': metrics.operator, 'exec_date': metrics.exec_date}
         if self._global_labels:
-            labels.update(self._global_labels)
+            labels |= self._global_labels
 
         self._mem_rss.labels(**labels).set(metrics.mem_rss)
         self._mem_vms.labels(**labels).set(metrics.mem_vms)
@@ -156,10 +154,7 @@ def _get_processes_metrics() -> t.Iterator[ProcessMetrics]:
 
 def _get_process_name(metrics: ProcessMetrics):
     dag, operator = metrics.dag, metrics.operator
-    if dag not in operator:
-        name_parts = [f'{dag}.{operator}']
-    else:
-        name_parts = [operator]
+    name_parts = [f'{dag}.{operator}'] if dag not in operator else [operator]
     name_parts.append(metrics.exec_date)
     # if metrics.is_local:
     #     name_parts.append('local')
@@ -171,14 +166,14 @@ def get_airflow_data(
         process: psutil.Process) -> t.Optional[t.Dict[str, t.Union[str, bool]]]:
     cmdline = process.cmdline()
     # print(">>>>CMDLINE>>>> " + str(cmdline))
-    if not cmdline or not cmdline[0] == 'airflow' or not cmdline[2] == 'runner:':
+    if not cmdline or cmdline[0] != 'airflow' or cmdline[2] != 'runner:':
         return None
 
     # print(">>>>airflow_args>>>> " + str(cmdline))
     dag = cmdline[3]
     # print(">>>DAG>>> "+dag)
     operator = cmdline[4]
-    exec_date = cmdline[5][:23]+"Z"
+    exec_date = f"{cmdline[5][:23]}Z"
     # is_local = any([i == '--local' for i in airflow_args])
     # is_raw = any([i == '--raw' for i in airflow_args])
 

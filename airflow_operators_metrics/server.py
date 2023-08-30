@@ -16,9 +16,7 @@ if __name__ == '__main__':
     sleep_seconds = int(os.getenv('SLEEP_SECONDS', 4))
     name_prefix = os.getenv('METRIC_NAME_PREFIX')
     hostname_path = os.getenv('HOSTNAME_PATH')
-    custom_procfs_path = os.getenv('CUSTOM_PROCFS_PATH')
-
-    if custom_procfs_path:
+    if custom_procfs_path := os.getenv('CUSTOM_PROCFS_PATH'):
         psutil.PROCFS_PATH = custom_procfs_path
 
     labels = {'hostname': socket.gethostname()}
